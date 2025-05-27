@@ -4,9 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: false}));
+app.use(express.urlencoded({ extended: false }));
 
-// Logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -37,33 +36,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Register routes and set up Vite/serveStatic
 (async () => {
-  const server = await registerRoutes(app);
+  await registerRoutes(app);
 
-  // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
-    throw err; // Avoid throwing in production; just send the response
   });
 
-  // Setup Vite in development, otherwise serve static files
   if (app.get("env") === "development") {
-    await setupVite(app, server);
+    await setupVite(app, null as any); // Null server for development, adjust if needed
   } else {
     serveStatic(app);
   }
 })();
 
-// Export the app for Vercel
 export default app;
-
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  const status = err.status || err.statusCode || 500;
-  const message = err.message || "Internal Server Error";
-
-  res.status(status).json({ message });
-});

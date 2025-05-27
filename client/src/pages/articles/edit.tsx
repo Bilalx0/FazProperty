@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRoute, useRouter } from "wouter";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashLayout } from "@/components/layout/dash-layout";
 import { Button } from "@/components/ui/button";
@@ -86,8 +86,8 @@ const articleCategories = [
 ];
 
 export default function ArticleEditPage() {
-  const [match, params] = useRoute("/articles/:id");
-  const [_, navigate] = useRouter();
+  const [match, params] = useLocation("/articles/:id");
+  const [_, navigate] = useLocation();
   const { toast } = useToast();
   const isNewArticle = !match || params?.id === "new";
   const articleId = isNewArticle ? null : parseInt(params?.id || "");

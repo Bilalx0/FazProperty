@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRoute, useRouter } from "wouter";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashLayout } from "@/components/layout/dash-layout";
 import { Button } from "@/components/ui/button";
@@ -52,8 +52,8 @@ const defaultValues: BannerHighlightFormValues = {
 };
 
 export default function BannerHighlightEditPage() {
-  const [match, params] = useRoute("/banner-highlights/:id");
-  const [_, navigate] = useRouter();
+  const [match, params] = useLocation("/banner-highlights/:id");
+  const [_, navigate] = useLocation();
   const { toast } = useToast();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const isNewBanner = !match || params?.id === "new";

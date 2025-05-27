@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRoute, useRouter } from "wouter";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashLayout } from "@/components/layout/dash-layout";
 import { Button } from "@/components/ui/button";
@@ -63,8 +63,8 @@ const defaultValues: AgentFormValues = {
 };
 
 export default function AgentEditPage() {
-  const [match, params] = useRoute("/agents/:id");
-  const [_, navigate] = useRouter();
+  const [match, params] = useLocation("/agents/:id");
+  const [_, navigate] = useLocation();
   const { toast } = useToast();
   const isNewAgent = !match || params?.id === "new";
   const agentId = isNewAgent ? null : parseInt(params?.id || "");

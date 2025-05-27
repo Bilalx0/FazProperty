@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRoute, useRouter } from "wouter";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashLayout } from "@/components/layout/dash-layout";
 import { Button } from "@/components/ui/button";
@@ -49,8 +49,8 @@ const defaultValues: DeveloperFormValues = {
 };
 
 export default function DeveloperEditPage() {
-  const [match, params] = useRoute("/developers/:id");
-  const [_, navigate] = useRouter();
+  const [match, params] = useLocation("/developers/:id");
+  const [_, navigate] = useLocation();
   const { toast } = useToast();
   const isNewDeveloper = !match || params?.id === "new";
   const developerId = isNewDeveloper ? null : parseInt(params?.id || "");

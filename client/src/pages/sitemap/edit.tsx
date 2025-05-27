@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRoute, useRouter } from "wouter";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashLayout } from "@/components/layout/dash-layout";
 import { Button } from "@/components/ui/button";
@@ -62,8 +62,8 @@ const defaultValues: SitemapFormValues = {
 };
 
 export default function SitemapEditPage() {
-  const [match, params] = useRoute("/sitemap/:id");
-  const [_, navigate] = useRouter();
+  const [match, params] = useLocation("/sitemap/:id");
+  const [_, navigate] = useLocation();
   const { toast } = useToast();
   const isNewEntry = !match || params?.id === "new";
   const entryId = isNewEntry ? null : parseInt(params?.id || "");

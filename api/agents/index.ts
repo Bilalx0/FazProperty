@@ -1,5 +1,5 @@
+import {storage} from '../../server/storage.ts'
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {

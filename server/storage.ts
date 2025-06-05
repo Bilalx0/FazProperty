@@ -1,587 +1,406 @@
-import { users, type User, type InsertUser, 
-         properties, type Property, type InsertProperty,
-         neighborhoods, type Neighborhood, type InsertNeighborhood,
-         developments, type Development, type InsertDevelopment,
-         enquiries, type Enquiry, type InsertEnquiry,
-         agents, type Agent, type InsertAgent,
-         articles, type Article, type InsertArticle,
-         bannerHighlights, type BannerHighlight, type InsertBannerHighlight,
-         developers, type Developer, type InsertDeveloper,
-         sitemap, type Sitemap, type InsertSitemap } from "@shared/schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "@shared/schema";
+import { eq } from "drizzle-orm";
+import * as dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined. Please set it in your .env file.");
+}
+
+// Initialize PostgreSQL client and Drizzle ORM
+const client = postgres(process.env.DATABASE_URL);
+const db = drizzle(client, { schema });
 
 // StorageInterface defines all CRUD operations for the application
 export interface IStorage {
-  // User operations (kept from original)
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  
+  // User operations
+  getUser(id: number): Promise<schema.User | undefined>;
+  getUserByUsername(username: string): Promise<schema.User | undefined>;
+  createUser(user: schema.InsertUser): Promise<schema.User>;
+
   // Property operations
-  getProperties(): Promise<Property[]>;
-  getProperty(id: number): Promise<Property | undefined>;
-  getPropertyByReference(reference: string): Promise<Property | undefined>;
-  createProperty(property: InsertProperty): Promise<Property>;
-  updateProperty(id: number, property: Partial<InsertProperty>): Promise<Property | undefined>;
+  getProperties(): Promise<schema.Property[]>;
+  getProperty(id: number): Promise<schema.Property | undefined>;
+  getPropertyByReference(reference: string): Promise<schema.Property | undefined>;
+  createProperty(property: schema.InsertProperty): Promise<schema.Property>;
+  updateProperty(id: number, property: Partial<schema.InsertProperty>): Promise<schema.Property | undefined>;
   deleteProperty(id: number): Promise<boolean>;
-  
+
   // Neighborhood operations
-  getNeighborhoods(): Promise<Neighborhood[]>;
-  getNeighborhood(id: number): Promise<Neighborhood | undefined>;
-  createNeighborhood(neighborhood: InsertNeighborhood): Promise<Neighborhood>;
-  updateNeighborhood(id: number, neighborhood: Partial<InsertNeighborhood>): Promise<Neighborhood | undefined>;
+  getNeighborhoods(): Promise<schema.Neighborhood[]>;
+  getNeighborhood(id: number): Promise<schema.Neighborhood | undefined>;
+  createNeighborhood(neighborhood: schema.InsertNeighborhood): Promise<schema.Neighborhood>;
+  updateNeighborhood(id: number, neighborhood: Partial<schema.InsertNeighborhood>): Promise<schema.Neighborhood | undefined>;
   deleteNeighborhood(id: number): Promise<boolean>;
-  
+
   // Development operations
-  getDevelopments(): Promise<Development[]>;
-  getDevelopment(id: number): Promise<Development | undefined>;
-  createDevelopment(development: InsertDevelopment): Promise<Development>;
-  updateDevelopment(id: number, development: Partial<InsertDevelopment>): Promise<Development | undefined>;
+  getDevelopments(): Promise<schema.Development[]>;
+  getDevelopment(id: number): Promise<schema.Development | undefined>;
+  createDevelopment(development: schema.InsertDevelopment): Promise<schema.Development>;
+  updateDevelopment(id: number, development: Partial<schema.InsertDevelopment>): Promise<schema.Development | undefined>;
   deleteDevelopment(id: number): Promise<boolean>;
-  
+
   // Enquiry operations
-  getEnquiries(): Promise<Enquiry[]>;
-  getEnquiry(id: number): Promise<Enquiry | undefined>;
-  createEnquiry(enquiry: InsertEnquiry): Promise<Enquiry>;
-  updateEnquiry(id: number, enquiry: Partial<Enquiry>): Promise<Enquiry | undefined>;
+  getEnquiries(): Promise<schema.Enquiry[]>;
+  getEnquiry(id: number): Promise<schema.Enquiry | undefined>;
+  createEnquiry(enquiry: schema.InsertEnquiry): Promise<schema.Enquiry>;
+  updateEnquiry(id: number, enquiry: Partial<schema.Enquiry>): Promise<schema.Enquiry | undefined>;
   deleteEnquiry(id: number): Promise<boolean>;
-  markEnquiryAsRead(id: number): Promise<Enquiry | undefined>;
-  
+  markEnquiryAsRead(id: number): Promise<schema.Enquiry | undefined>;
+
   // Agent operations
-  getAgents(): Promise<Agent[]>;
-  getAgent(id: number): Promise<Agent | undefined>;
-  createAgent(agent: InsertAgent): Promise<Agent>;
-  updateAgent(id: number, agent: Partial<InsertAgent>): Promise<Agent | undefined>;
+  getAgents(): Promise<schema.Agent[]>;
+  getAgent(id: number): Promise<schema.Agent | undefined>;
+  createAgent(agent: schema.InsertAgent): Promise<schema.Agent>;
+  updateAgent(id: number, agent: Partial<schema.InsertAgent>): Promise<schema.Agent | undefined>;
   deleteAgent(id: number): Promise<boolean>;
-  
+
   // Article operations
-  getArticles(): Promise<Article[]>;
-  getArticle(id: number): Promise<Article | undefined>;
-  createArticle(article: InsertArticle): Promise<Article>;
-  updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined>;
+  getArticles(): Promise<schema.Article[]>;
+  getArticle(id: number): Promise<schema.Article | undefined>;
+  createArticle(article: schema.InsertArticle): Promise<schema.Article>;
+  updateArticle(id: number, article: Partial<schema.InsertArticle>): Promise<schema.Article | undefined>;
   deleteArticle(id: number): Promise<boolean>;
-  
+
   // Banner Highlight operations
-  getBannerHighlights(): Promise<BannerHighlight[]>;
-  getBannerHighlight(id: number): Promise<BannerHighlight | undefined>;
-  createBannerHighlight(bannerHighlight: InsertBannerHighlight): Promise<BannerHighlight>;
-  updateBannerHighlight(id: number, bannerHighlight: Partial<InsertBannerHighlight>): Promise<BannerHighlight | undefined>;
+  getBannerHighlights(): Promise<schema.BannerHighlight[]>;
+  getBannerHighlight(id: number): Promise<schema.BannerHighlight | undefined>;
+  createBannerHighlight(bannerHighlight: schema.InsertBannerHighlight): Promise<schema.BannerHighlight>;
+  updateBannerHighlight(id: number, bannerHighlight: Partial<schema.InsertBannerHighlight>): Promise<schema.BannerHighlight | undefined>;
   deleteBannerHighlight(id: number): Promise<boolean>;
-  
+
   // Developer operations
-  getDevelopers(): Promise<Developer[]>;
-  getDeveloper(id: number): Promise<Developer | undefined>;
-  createDeveloper(developer: InsertDeveloper): Promise<Developer>;
-  updateDeveloper(id: number, developer: Partial<InsertDeveloper>): Promise<Developer | undefined>;
+  getDevelopers(): Promise<schema.Developer[]>;
+  getDeveloper(id: number): Promise<schema.Developer | undefined>;
+  createDeveloper(developer: schema.InsertDeveloper): Promise<schema.Developer>;
+  updateDeveloper(id: number, developer: Partial<schema.InsertDeveloper>): Promise<schema.Developer | undefined>;
   deleteDeveloper(id: number): Promise<boolean>;
-  
+
   // Sitemap operations
-  getSitemapEntries(): Promise<Sitemap[]>;
-  getSitemapEntry(id: number): Promise<Sitemap | undefined>;
-  createSitemapEntry(sitemapEntry: InsertSitemap): Promise<Sitemap>;
-  updateSitemapEntry(id: number, sitemapEntry: Partial<InsertSitemap>): Promise<Sitemap | undefined>;
+  getSitemapEntries(): Promise<schema.Sitemap[]>;
+  getSitemapEntry(id: number): Promise<schema.Sitemap | undefined>;
+  createSitemapEntry(sitemapEntry: schema.InsertSitemap): Promise<schema.Sitemap>;
+  updateSitemapEntry(id: number, sitemapEntry: Partial<schema.InsertSitemap>): Promise<schema.Sitemap | undefined>;
   deleteSitemapEntry(id: number): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private properties: Map<number, Property>;
-  private neighborhoods: Map<number, Neighborhood>;
-  private developments: Map<number, Development>;
-  private enquiries: Map<number, Enquiry>;
-  private agents: Map<number, Agent>;
-  private articles: Map<number, Article>;
-  private bannerHighlights: Map<number, BannerHighlight>;
-  private developers: Map<number, Developer>;
-  private sitemapEntries: Map<number, Sitemap>;
-  
-  private currentIds: {
-    user: number;
-    property: number;
-    neighborhood: number;
-    development: number;
-    enquiry: number;
-    agent: number;
-    article: number;
-    bannerHighlight: number;
-    developer: number;
-    sitemap: number;
-  };
-
+export class DbStorage implements IStorage {
   constructor() {
-    // Initialize collections
-    this.users = new Map();
-    this.properties = new Map();
-    this.neighborhoods = new Map();
-    this.developments = new Map();
-    this.enquiries = new Map();
-    this.agents = new Map();
-    this.articles = new Map();
-    this.bannerHighlights = new Map();
-    this.developers = new Map();
-    this.sitemapEntries = new Map();
-    
-    // Initialize IDs
-    this.currentIds = {
-      user: 1,
-      property: 1,
-      neighborhood: 1,
-      development: 1,
-      enquiry: 1,
-      agent: 1,
-      article: 1,
-      bannerHighlight: 1,
-      developer: 1,
-      sitemap: 1
-    };
-
-    // Add example data for testing
-    this.initializeData();
+    // No in-memory maps needed; database handles persistence
   }
 
-  private initializeData() {
-    // Initialize with some example data from the CSV files
-    this.createProperty({
-      reference: "NS1503",
-      listingType: "sale",
-      propertyType: "villa",
-      subCommunity: "Palm Jebel Ali",
-      community: "Palm Jebel Ali",
-      region: "Dubai",
-      country: "AE",
-      agent: [{ id: "5vWGNoSRuxte0DAU96KA", name: "Imran Shaikh" }],
-      price: 19050000,
-      currency: "AED",
-      bedrooms: 6,
-      bathrooms: 8,
-      propertyStatus: "Off Plan",
-      title: "BEACH VILLAS 6 BEDROOM SUN,SEA,SAND,SOPHISTICATION",
-      description: "Welcome to Palm Jebel Ali, a world-class lifestyle destination meticulously designed and impeccably curated, providing unrivalled luxury living to its residents.",
-      sqfeetArea: 7798,
-      sqfeetBuiltup: 7798,
-      isExclusive: false,
-      amenities: "Balcony,BBQ area,Built in wardrobes,Central air conditioning,Covered parking,Fully fitted kitchen,Private Gym,Private Jacuzzi,Kitchen Appliances,Maids Room,Pets allowed,Private Garden,Private Pool,Sauna,Steam room,Study,Sea/Water view,Security,Maintenance,Within a Compound,Indoor swimming pool,Golf view,Terrace,Concierge Service,Spa,Maid Service,Walk-in Closet,Heating,Children's Play Area,Lobby in Building,Children's Pool",
-      isFeatured: false,
-      isFitted: true,
-      images: [],
-      isDisabled: false,
-    });
-
-    // Add sample enquiry
-    this.createEnquiry({
-      email: "khalil@example.com",
-      message: "",
-      name: "Khalil Gibran",
-      phone: "12345678910",
-      propertyReference: "",
-      subject: "general enquiry"
-    });
+  // User methods
+  async getUser(id: number): Promise<schema.User | undefined> {
+    return await db.query.users.findFirst({ where: eq(schema.users.id, id) });
   }
 
-  // User methods (kept from original)
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+  async getUserByUsername(username: string): Promise<schema.User | undefined> {
+    return await db.query.users.findFirst({ where: eq(schema.users.username, username) });
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentIds.user++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async createUser(user: schema.InsertUser): Promise<schema.User> {
+    const [newUser] = await db
+      .insert(schema.users)
+      .values({ ...user, createdAt: new Date(), updatedAt: new Date() })
+      .returning();
+    return newUser;
   }
 
   // Property methods
-  async getProperties(): Promise<Property[]> {
-    return Array.from(this.properties.values());
+  async getProperties(): Promise<schema.Property[]> {
+    return await db.query.properties.findMany();
   }
 
-  async getProperty(id: number): Promise<Property | undefined> {
-    return this.properties.get(id);
+  async getProperty(id: number): Promise<schema.Property | undefined> {
+    return await db.query.properties.findFirst({ where: eq(schema.properties.id, id) });
   }
 
-  async getPropertyByReference(reference: string): Promise<Property | undefined> {
-    return Array.from(this.properties.values()).find(
-      (property) => property.reference === reference
-    );
+  async getPropertyByReference(reference: string): Promise<schema.Property | undefined> {
+    return await db.query.properties.findFirst({ where: eq(schema.properties.reference, reference) });
   }
 
-  async createProperty(property: InsertProperty): Promise<Property> {
-    const id = this.currentIds.property++;
-    const now = new Date();
-    const newProperty: Property = { 
-      ...property, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.properties.set(id, newProperty);
+  async createProperty(property: schema.InsertProperty): Promise<schema.Property> {
+    const [newProperty] = await db
+      .insert(schema.properties)
+      .values(property)
+      .returning();
     return newProperty;
   }
 
-  async updateProperty(id: number, property: Partial<InsertProperty>): Promise<Property | undefined> {
-    const existingProperty = this.properties.get(id);
-    if (!existingProperty) {
-      return undefined;
-    }
-
-    const updatedProperty = { 
-      ...existingProperty, 
-      ...property, 
-      updatedAt: new Date() 
-    };
-    this.properties.set(id, updatedProperty);
+  async updateProperty(id: number, property: Partial<schema.InsertProperty>): Promise<schema.Property | undefined> {
+    const [updatedProperty] = await db
+      .update(schema.properties)
+      .set({ ...property, updatedAt: new Date() })
+      .where(eq(schema.properties.id, id))
+      .returning();
     return updatedProperty;
   }
 
   async deleteProperty(id: number): Promise<boolean> {
-    return this.properties.delete(id);
+    const result = await db.delete(schema.properties).where(eq(schema.properties.id, id));
+    return result.count > 0;
   }
 
   // Neighborhood methods
-  async getNeighborhoods(): Promise<Neighborhood[]> {
-    return Array.from(this.neighborhoods.values());
+  async getNeighborhoods(): Promise<schema.Neighborhood[]> {
+    return await db.query.neighborhoods.findMany();
   }
 
-  async getNeighborhood(id: number): Promise<Neighborhood | undefined> {
-    return this.neighborhoods.get(id);
+  async getNeighborhood(id: number): Promise<schema.Neighborhood | undefined> {
+    return await db.query.neighborhoods.findFirst({ where: eq(schema.neighborhoods.id, id) });
   }
 
-  async createNeighborhood(neighborhood: InsertNeighborhood): Promise<Neighborhood> {
-    const id = this.currentIds.neighborhood++;
-    const now = new Date();
-    const newNeighborhood: Neighborhood = { 
-      ...neighborhood, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.neighborhoods.set(id, newNeighborhood);
+  async createNeighborhood(neighborhood: schema.InsertNeighborhood): Promise<schema.Neighborhood> {
+    const [newNeighborhood] = await db
+      .insert(schema.neighborhoods)
+      .values(neighborhood)
+      .returning();
     return newNeighborhood;
   }
 
-  async updateNeighborhood(id: number, neighborhood: Partial<InsertNeighborhood>): Promise<Neighborhood | undefined> {
-    const existingNeighborhood = this.neighborhoods.get(id);
-    if (!existingNeighborhood) {
-      return undefined;
-    }
-
-    const updatedNeighborhood = { 
-      ...existingNeighborhood, 
-      ...neighborhood, 
-      updatedAt: new Date() 
-    };
-    this.neighborhoods.set(id, updatedNeighborhood);
+  async updateNeighborhood(id: number, neighborhood: Partial<schema.InsertNeighborhood>): Promise<schema.Neighborhood | undefined> {
+    const [updatedNeighborhood] = await db
+      .update(schema.neighborhoods)
+      .set({ ...neighborhood, updatedAt: new Date() })
+      .where(eq(schema.neighborhoods.id, id))
+      .returning();
     return updatedNeighborhood;
   }
 
   async deleteNeighborhood(id: number): Promise<boolean> {
-    return this.neighborhoods.delete(id);
+    const result = await db.delete(schema.neighborhoods).where(eq(schema.neighborhoods.id, id));
+    return result.count > 0;
   }
 
   // Development methods
-  async getDevelopments(): Promise<Development[]> {
-    return Array.from(this.developments.values());
+  async getDevelopments(): Promise<schema.Development[]> {
+    return await db.query.developments.findMany();
   }
 
-  async getDevelopment(id: number): Promise<Development | undefined> {
-    return this.developments.get(id);
+  async getDevelopment(id: number): Promise<schema.Development | undefined> {
+    return await db.query.developments.findFirst({ where: eq(schema.developments.id, id) });
   }
 
-  async createDevelopment(development: InsertDevelopment): Promise<Development> {
-    const id = this.currentIds.development++;
-    const now = new Date();
-    const newDevelopment: Development = { 
-      ...development, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.developments.set(id, newDevelopment);
+  async createDevelopment(development: schema.InsertDevelopment): Promise<schema.Development> {
+    const [newDevelopment] = await db
+      .insert(schema.developments)
+      .values(development)
+      .returning();
     return newDevelopment;
   }
 
-  async updateDevelopment(id: number, development: Partial<InsertDevelopment>): Promise<Development | undefined> {
-    const existingDevelopment = this.developments.get(id);
-    if (!existingDevelopment) {
-      return undefined;
-    }
-
-    const updatedDevelopment = { 
-      ...existingDevelopment, 
-      ...development, 
-      updatedAt: new Date() 
-    };
-    this.developments.set(id, updatedDevelopment);
+  async updateDevelopment(id: number, development: Partial<schema.InsertDevelopment>): Promise<schema.Development | undefined> {
+    const [updatedDevelopment] = await db
+      .update(schema.developments)
+      .set({ ...development, updatedAt: new Date() })
+      .where(eq(schema.developments.id, id))
+      .returning();
     return updatedDevelopment;
   }
 
   async deleteDevelopment(id: number): Promise<boolean> {
-    return this.developments.delete(id);
+    const result = await db.delete(schema.developments).where(eq(schema.developments.id, id));
+    return result.count > 0;
   }
 
   // Enquiry methods
-  async getEnquiries(): Promise<Enquiry[]> {
-    return Array.from(this.enquiries.values());
+  async getEnquiries(): Promise<schema.Enquiry[]> {
+    return await db.query.enquiries.findMany();
   }
 
-  async getEnquiry(id: number): Promise<Enquiry | undefined> {
-    return this.enquiries.get(id);
+  async getEnquiry(id: number): Promise<schema.Enquiry | undefined> {
+    return await db.query.enquiries.findFirst({ where: eq(schema.enquiries.id, id) });
   }
 
-  async createEnquiry(enquiry: InsertEnquiry): Promise<Enquiry> {
-    const id = this.currentIds.enquiry++;
-    const now = new Date();
-    const newEnquiry: Enquiry = { 
-      ...enquiry, 
-      id, 
-      isRead: false,
-      createdAt: now 
-    };
-    this.enquiries.set(id, newEnquiry);
+  async createEnquiry(enquiry: schema.InsertEnquiry): Promise<schema.Enquiry> {
+    const [newEnquiry] = await db
+      .insert(schema.enquiries)
+      .values(enquiry)
+      .returning();
     return newEnquiry;
   }
 
-  async updateEnquiry(id: number, enquiry: Partial<Enquiry>): Promise<Enquiry | undefined> {
-    const existingEnquiry = this.enquiries.get(id);
-    if (!existingEnquiry) {
-      return undefined;
-    }
-
-    const updatedEnquiry = { 
-      ...existingEnquiry, 
-      ...enquiry
-    };
-    this.enquiries.set(id, updatedEnquiry);
+  async updateEnquiry(id: number, enquiry: Partial<schema.Enquiry>): Promise<schema.Enquiry | undefined> {
+    const [updatedEnquiry] = await db
+      .update(schema.enquiries)
+      .set(enquiry)
+      .where(eq(schema.enquiries.id, id))
+      .returning();
     return updatedEnquiry;
   }
 
   async deleteEnquiry(id: number): Promise<boolean> {
-    return this.enquiries.delete(id);
+    const result = await db.delete(schema.enquiries).where(eq(schema.enquiries.id, id));
+    return result.count > 0;
   }
 
-  async markEnquiryAsRead(id: number): Promise<Enquiry | undefined> {
-    const existingEnquiry = this.enquiries.get(id);
-    if (!existingEnquiry) {
-      return undefined;
-    }
-
-    const updatedEnquiry = { 
-      ...existingEnquiry, 
-      isRead: true
-    };
-    this.enquiries.set(id, updatedEnquiry);
+  async markEnquiryAsRead(id: number): Promise<schema.Enquiry | undefined> {
+    const [updatedEnquiry] = await db
+      .update(schema.enquiries)
+      .set({ isRead: true })
+      .where(eq(schema.enquiries.id, id))
+      .returning();
     return updatedEnquiry;
   }
 
   // Agent methods
-  async getAgents(): Promise<Agent[]> {
-    return Array.from(this.agents.values());
+  async getAgents(): Promise<schema.Agent[]> {
+    return await db.query.agents.findMany();
   }
 
-  async getAgent(id: number): Promise<Agent | undefined> {
-    return this.agents.get(id);
+  async getAgent(id: number): Promise<schema.Agent | undefined> {
+    return await db.query.agents.findFirst({ where: eq(schema.agents.id, id) });
   }
 
-  async createAgent(agent: InsertAgent): Promise<Agent> {
-    const id = this.currentIds.agent++;
-    const now = new Date();
-    const newAgent: Agent = { 
-      ...agent, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.agents.set(id, newAgent);
+  async createAgent(agent: schema.InsertAgent): Promise<schema.Agent> {
+    const [newAgent] = await db
+      .insert(schema.agents)
+      .values(agent)
+      .returning();
     return newAgent;
   }
 
-  async updateAgent(id: number, agent: Partial<InsertAgent>): Promise<Agent | undefined> {
-    const existingAgent = this.agents.get(id);
-    if (!existingAgent) {
-      return undefined;
-    }
-
-    const updatedAgent = { 
-      ...existingAgent, 
-      ...agent, 
-      updatedAt: new Date() 
-    };
-    this.agents.set(id, updatedAgent);
+  async updateAgent(id: number, agent: Partial<schema.InsertAgent>): Promise<schema.Agent | undefined> {
+    const [updatedAgent] = await db
+      .update(schema.agents)
+      .set({ ...agent, updatedAt: new Date() })
+      .where(eq(schema.agents.id, id))
+      .returning();
     return updatedAgent;
   }
 
   async deleteAgent(id: number): Promise<boolean> {
-    return this.agents.delete(id);
+    const result = await db.delete(schema.agents).where(eq(schema.agents.id, id));
+    return result.count > 0;
   }
 
   // Article methods
-  async getArticles(): Promise<Article[]> {
-    return Array.from(this.articles.values());
+  async getArticles(): Promise<schema.Article[]> {
+    return await db.query.articles.findMany();
   }
 
-  async getArticle(id: number): Promise<Article | undefined> {
-    return this.articles.get(id);
+  async getArticle(id: number): Promise<schema.Article | undefined> {
+    return await db.query.articles.findFirst({ where: eq(schema.articles.id, id) });
   }
 
-  async createArticle(article: InsertArticle): Promise<Article> {
-    const id = this.currentIds.article++;
-    const now = new Date();
-    const newArticle: Article = { 
-      ...article, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.articles.set(id, newArticle);
+  async createArticle(article: schema.InsertArticle): Promise<schema.Article> {
+    const [newArticle] = await db
+      .insert(schema.articles)
+      .values(article)
+      .returning();
     return newArticle;
   }
 
-  async updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined> {
-    const existingArticle = this.articles.get(id);
-    if (!existingArticle) {
-      return undefined;
-    }
-
-    const updatedArticle = { 
-      ...existingArticle, 
-      ...article, 
-      updatedAt: new Date() 
-    };
-    this.articles.set(id, updatedArticle);
+  async updateArticle(id: number, article: Partial<schema.InsertArticle>): Promise<schema.Article | undefined> {
+    const [updatedArticle] = await db
+      .update(schema.articles)
+      .set({ ...article, updatedAt: new Date() })
+      .where(eq(schema.articles.id, id))
+      .returning();
     return updatedArticle;
   }
 
   async deleteArticle(id: number): Promise<boolean> {
-    return this.articles.delete(id);
+    const result = await db.delete(schema.articles).where(eq(schema.articles.id, id));
+    return result.count > 0;
   }
 
   // Banner Highlight methods
-  async getBannerHighlights(): Promise<BannerHighlight[]> {
-    return Array.from(this.bannerHighlights.values());
+  async getBannerHighlights(): Promise<schema.BannerHighlight[]> {
+    return await db.query.bannerHighlights.findMany();
   }
 
-  async getBannerHighlight(id: number): Promise<BannerHighlight | undefined> {
-    return this.bannerHighlights.get(id);
+  async getBannerHighlight(id: number): Promise<schema.BannerHighlight | undefined> {
+    return await db.query.bannerHighlights.findFirst({ where: eq(schema.bannerHighlights.id, id) });
   }
 
-  async createBannerHighlight(bannerHighlight: InsertBannerHighlight): Promise<BannerHighlight> {
-    const id = this.currentIds.bannerHighlight++;
-    const now = new Date();
-    const newBannerHighlight: BannerHighlight = { 
-      ...bannerHighlight, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.bannerHighlights.set(id, newBannerHighlight);
+  async createBannerHighlight(bannerHighlight: schema.InsertBannerHighlight): Promise<schema.BannerHighlight> {
+    const [newBannerHighlight] = await db
+      .insert(schema.bannerHighlights)
+      .values(bannerHighlight)
+      .returning();
     return newBannerHighlight;
   }
 
-  async updateBannerHighlight(id: number, bannerHighlight: Partial<InsertBannerHighlight>): Promise<BannerHighlight | undefined> {
-    const existingBannerHighlight = this.bannerHighlights.get(id);
-    if (!existingBannerHighlight) {
-      return undefined;
-    }
-
-    const updatedBannerHighlight = { 
-      ...existingBannerHighlight, 
-      ...bannerHighlight, 
-      updatedAt: new Date() 
-    };
-    this.bannerHighlights.set(id, updatedBannerHighlight);
+  async updateBannerHighlight(id: number, bannerHighlight: Partial<schema.InsertBannerHighlight>): Promise<schema.BannerHighlight | undefined> {
+    const [updatedBannerHighlight] = await db
+      .update(schema.bannerHighlights)
+      .set({ ...bannerHighlight, updatedAt: new Date() })
+      .where(eq(schema.bannerHighlights.id, id))
+      .returning();
     return updatedBannerHighlight;
   }
 
   async deleteBannerHighlight(id: number): Promise<boolean> {
-    return this.bannerHighlights.delete(id);
+    const result = await db.delete(schema.bannerHighlights).where(eq(schema.bannerHighlights.id, id));
+    return result.count > 0;
   }
 
   // Developer methods
-  async getDevelopers(): Promise<Developer[]> {
-    return Array.from(this.developers.values());
+  async getDevelopers(): Promise<schema.Developer[]> {
+    return await db.query.developers.findMany();
   }
 
-  async getDeveloper(id: number): Promise<Developer | undefined> {
-    return this.developers.get(id);
+  async getDeveloper(id: number): Promise<schema.Developer | undefined> {
+    return await db.query.developers.findFirst({ where: eq(schema.developers.id, id) });
   }
 
-  async createDeveloper(developer: InsertDeveloper): Promise<Developer> {
-    const id = this.currentIds.developer++;
-    const now = new Date();
-    const newDeveloper: Developer = { 
-      ...developer, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.developers.set(id, newDeveloper);
+  async createDeveloper(developer: schema.InsertDeveloper): Promise<schema.Developer> {
+    const [newDeveloper] = await db
+      .insert(schema.developers)
+      .values(developer)
+      .returning();
     return newDeveloper;
   }
 
-  async updateDeveloper(id: number, developer: Partial<InsertDeveloper>): Promise<Developer | undefined> {
-    const existingDeveloper = this.developers.get(id);
-    if (!existingDeveloper) {
-      return undefined;
-    }
-
-    const updatedDeveloper = { 
-      ...existingDeveloper, 
-      ...developer, 
-      updatedAt: new Date() 
-    };
-    this.developers.set(id, updatedDeveloper);
+  async updateDeveloper(id: number, developer: Partial<schema.InsertDeveloper>): Promise<schema.Developer | undefined> {
+    const [updatedDeveloper] = await db
+      .update(schema.developers)
+      .set({ ...developer, updatedAt: new Date() })
+      .where(eq(schema.developers.id, id))
+      .returning();
     return updatedDeveloper;
   }
 
   async deleteDeveloper(id: number): Promise<boolean> {
-    return this.developers.delete(id);
+    const result = await db.delete(schema.developers).where(eq(schema.developers.id, id));
+    return result.count > 0;
   }
 
   // Sitemap methods
-  async getSitemapEntries(): Promise<Sitemap[]> {
-    return Array.from(this.sitemapEntries.values());
+  async getSitemapEntries(): Promise<schema.Sitemap[]> {
+    return await db.query.sitemap.findMany();
   }
 
-  async getSitemapEntry(id: number): Promise<Sitemap | undefined> {
-    return this.sitemapEntries.get(id);
+  async getSitemapEntry(id: number): Promise<schema.Sitemap | undefined> {
+    return await db.query.sitemap.findFirst({ where: eq(schema.sitemap.id, id) });
   }
 
-  async createSitemapEntry(sitemapEntry: InsertSitemap): Promise<Sitemap> {
-    const id = this.currentIds.sitemap++;
-    const now = new Date();
-    const newSitemapEntry: Sitemap = { 
-      ...sitemapEntry, 
-      id, 
-      updatedAt: now, 
-      createdAt: now 
-    };
-    this.sitemapEntries.set(id, newSitemapEntry);
+  async createSitemapEntry(sitemapEntry: schema.InsertSitemap): Promise<schema.Sitemap> {
+    const [newSitemapEntry] = await db
+      .insert(schema.sitemap)
+      .values(sitemapEntry)
+      .returning();
     return newSitemapEntry;
   }
 
-  async updateSitemapEntry(id: number, sitemapEntry: Partial<InsertSitemap>): Promise<Sitemap | undefined> {
-    const existingSitemapEntry = this.sitemapEntries.get(id);
-    if (!existingSitemapEntry) {
-      return undefined;
-    }
-
-    const updatedSitemapEntry = { 
-      ...existingSitemapEntry, 
-      ...sitemapEntry, 
-      updatedAt: new Date() 
-    };
-    this.sitemapEntries.set(id, updatedSitemapEntry);
+  async updateSitemapEntry(id: number, sitemapEntry: Partial<schema.InsertSitemap>): Promise<schema.Sitemap | undefined> {
+    const [updatedSitemapEntry] = await db
+      .update(schema.sitemap)
+      .set({ ...sitemapEntry, updatedAt: new Date() })
+      .where(eq(schema.sitemap.id, id))
+      .returning();
     return updatedSitemapEntry;
   }
 
   async deleteSitemapEntry(id: number): Promise<boolean> {
-    return this.sitemapEntries.delete(id);
+    const result = await db.delete(schema.sitemap).where(eq(schema.sitemap.id, id));
+    return result.count > 0;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DbStorage();

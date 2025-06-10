@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
-import { insertPropertySchema } from '@shared/schema';
-import { validateBody } from '../../server/utils';
+import { storage } from '../../server/storage.js';
+import { insertPropertySchema } from '@shared/schema.js';
+import { validateBody } from '../../server/utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

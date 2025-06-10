@@ -43,8 +43,9 @@ export default function PropertiesPage() {
   // Delete property mutation
   const deletePropertyMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/properties/${id}`);
-    },
+  const result = await apiRequest("DELETE", `/api/properties/${id}`);
+  return result; // Return the parsed response or null
+},
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({

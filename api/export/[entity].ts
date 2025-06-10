@@ -1,4 +1,4 @@
-import { storage } from '../../server/storage';
+import { storage } from '../../server/storage.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Parser } from 'json2csv';
 

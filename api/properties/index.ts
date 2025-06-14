@@ -1,79 +1,78 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage.js';
 import { insertPropertySchema } from '../../shared/schema.js';
 import { validateBody } from '../../server/utils.js';
+import { Property } from '../../shared/schema.js'; // Import the Property type
+
+// Try to import storage with proper error handling
+let storage: any = null;
+let storageError: string | null = null;
+
+try {
+  console.log('Attempting to import storage...');
+  const storageModule = await import('../../server/storage.js');
+  storage = storageModule.storage;
+  console.log('Storage imported successfully:', !!storage);
+} catch (error) {
+  console.error('Failed to import storage:', error);
+  storageError = error instanceof Error ? error.message : 'Unknown storage import error';
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Handle /api/properties (GET all properties, POST new property)
-  if (!req.query.id) {
-    if (req.method === 'POST') {
+  console.log('=== PROPERTIES API HANDLER START ===');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('Query:', req.query);
+  console.log('Storage available:', !!storage);
+  console.log('Storage error:', storageError);
+
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  try {
+    if (!storage) {
+      return res.status(500).json({ message: 'Storage service unavailable', storageError });
+    }
+
+    // Handle base route /api/properties
+    if (req.method === 'GET') {
+      try {
+        console.log('Fetching all properties');
+        const properties = await storage.getProperties();
+        console.log('Retrieved properties count:', properties.length);
+        res.status(200).json(properties);
+      } catch (error) {
+        console.error('GET all properties error:', error);
+        res.status(500).json({ message: 'Failed to fetch properties' });
+      }
+    } else if (req.method === 'POST') {
       const data = validateBody(insertPropertySchema, req, res);
       if (!data) return;
       try {
+        console.log('Creating new property');
         const property = await storage.createProperty(data);
+        console.log('Created property:', property);
         res.status(201).json(property);
       } catch (error) {
+        console.error('POST property error:', error);
         res.status(500).json({ message: 'Failed to create property' });
-      }
-    } else if (req.method === 'GET') {
-      try {
-        const properties = await storage.getProperties();
-        res.status(200).json(properties);
-      } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch properties' });
       }
     } else {
       res.setHeader('Allow', ['GET', 'POST']);
       res.status(405).json({ message: 'Method not allowed' });
     }
-  }
-  // Handle /api/properties/:id (GET, PUT, DELETE by ID)
-  else {
-    const id = parseInt(req.query.id as string);
-    if (isNaN(id)) {
-      return res.status(400).json({ message: 'Invalid ID' });
-    }
-
-    if (req.method === 'GET') {
-      try {
-        const property = await storage.getProperty(id);
-        if (!property) {
-          return res.status(404).json({ message: 'Property not found' });
-        }
-        res.status(200).json(property);
-      } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch property' });
-      }
-    } else if (req.method === 'PUT') {
-      const data = validateBody(insertPropertySchema.partial(), req, res);
-      if (!data) return;
-      try {
-        const property = await storage.updateProperty(id, data);
-        if (!property) {
-          return res.status(404).json({ message: 'Property not found' });
-        }
-        res.status(200).json(property);
-      } catch (error) {
-        res.status(500).json({ message: 'Failed to update property' });
-      }
-    } else if (req.method === 'DELETE') {
-  console.log(`DELETE request for property ID: ${req.query.id}`);
-  try {
-    const id = parseInt(req.query.id as string);
-    if (isNaN(id)) {
-      console.log('Invalid ID:', req.query.id);
-      return res.status(400).json({ message: 'Invalid ID' });
-    }
-    const success = await storage.deleteProperty(id);
-    if (!success) {
-      console.log(`Property not found: ${id}`);
-      return res.status(404).json({ message: 'Property not found' });
-    }
-    res.status(204).end();
   } catch (error) {
-    console.error('DELETE error:', error);
-    res.status(500).json({ message: 'Failed to delete property' });
+    console.error('Handler error:', error);
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      storageError: storageError,
+      timestamp: new Date().toISOString()
+    });
   }
-}
-}
 }

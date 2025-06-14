@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { DashLayout } from "@/components/layout/dash-layout";
-import { DataTable } from "@/components/ui/data-table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { DashLayout } from "@/components/layout/dash-layout.jsx";
+import { DataTable } from "@/components/ui/data-table.jsx";
+import { Button } from "@/components/ui/button.jsx";
+import { Badge } from "@/components/ui/badge.jsx";
+import { apiRequest, queryClient } from "@/lib/queryClient.js";
 import { Plus, FileUp, FileDown, AlertCircle } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
-import { formatCurrency, objectsToCSV, downloadCSV } from "@/lib/utils";
-import { CSVUpload } from "@/components/ui/csv-upload";
+import { formatCurrency, objectsToCSV, downloadCSV } from "@/lib/utils.js";
+import { CSVUpload } from "@/components/ui/csv-upload.jsx";
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogDescription 
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog.jsx";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,8 +26,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/alert-dialog.jsx";
+import { useToast } from "@/hooks/use-toast.js";
 
 export default function PropertiesPage() {
   const [_, setLocation] = useLocation();
@@ -42,27 +42,27 @@ export default function PropertiesPage() {
 
   // Delete property mutation
   const deletePropertyMutation = useMutation({
-    mutationFn: async (id: number) => {
-  const result = await apiRequest("DELETE", `/api/properties/${id}`);
-  return result; // Return the parsed response or null
-},
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
-      toast({
-        title: "Property deleted",
-        description: "The property has been successfully deleted.",
-      });
-      setDeletePropertyId(null);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to delete property. Please try again.",
-        variant: "destructive",
-      });
-      console.error("Failed to delete property:", error);
-    }
-  });
+  mutationFn: async (id: number) => {
+    const result = await apiRequest("DELETE", `/api/properties/${id}`);
+    return result; // Could be null for 204
+  },
+  onSuccess: (result) => {
+    queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+    toast({
+      title: "Property deleted",
+      description: "The property has been successfully deleted.",
+    });
+    setDeletePropertyId(null);
+  },
+  onError: (error) => {
+    toast({
+      title: "Error",
+      description: "Failed to delete property. Please try again.",
+      variant: "destructive",
+    });
+    console.error("Failed to delete property:", error);
+  },
+});
 
   const handleDelete = (id: number) => {
     setDeletePropertyId(id);
@@ -75,7 +75,7 @@ export default function PropertiesPage() {
   };
 
   const handleExportCSV = () => {
-    const csv = objectsToCSV(properties);
+    const csv = objectsToCSV(properties as Record<string, any>[]);
     downloadCSV(csv, "properties.csv");
     toast({
       title: "Export successful",
@@ -237,7 +237,7 @@ export default function PropertiesPage() {
 
       <DataTable
         columns={propertyColumns}
-        data={properties}
+        data={properties as any[]}
         filterableColumns={filterableColumns}
         searchableColumns={[
           {

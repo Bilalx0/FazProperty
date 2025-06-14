@@ -1,4 +1,5 @@
 {
+
   "include": ["client/src/**/*", "shared/**/*", "server/**/*", "api/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
@@ -12,12 +13,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "node16",
-    "baseUrl": ".",
+    "baseUrl": "./client", // Changed from "."
     "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"],
-      "@server/*": ["server/*"]
+      "@/*": ["src/*"], // Changed from "./client/src/*"
+      "@shared/*": ["../shared/*"], // Adjusted for new baseUrl
+      "@server/*": ["../server/*"] // Adjusted for new baseUrl
     }
   }
 }

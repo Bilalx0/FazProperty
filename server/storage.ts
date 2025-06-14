@@ -116,8 +116,11 @@ export class DbStorage implements IStorage {
   }
 
   async getProperty(id: number): Promise<schema.Property | undefined> {
-    return await db.query.properties.findFirst({ where: eq(schema.properties.id, id) });
-  }
+  console.log('Executing getProperty query for ID:', id, 'with type:', typeof id);
+  const property = await db.query.properties.findFirst({ where: eq(schema.properties.id, id) });
+  console.log('Query result for ID', id, ':', property);
+  return property;
+}
 
   async getPropertyByReference(reference: string): Promise<schema.Property | undefined> {
     return await db.query.properties.findFirst({ where: eq(schema.properties.reference, reference) });

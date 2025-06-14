@@ -12,6 +12,10 @@
   ],
   "routes": [
     {
+      "src": "/api/properties/(.*)",
+      "dest": "/api/properties/[id].ts"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
